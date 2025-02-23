@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MainActivity"
+    android:gravity="center">
+
+    <TextView
+        android:id="@+id/valor_Resultado_Dolares"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:fontFamily="casual"
+        android:text="Doa Facil"
+        android:textColor="#4285F4"
+        android:textSize="50sp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:layout_gravity="center"
+        android:text="Preencha o PIN"
+        android:layout_marginBottom="50dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="User:"
+            android:textSize="20sp"
+            android:layout_gravity="center"/>
+
+        <EditText
+            android:id="@+id/edit_Email"
+            android:layout_width="305dp"
+            android:layout_height="61dp"
+            android:layout_gravity="center"
+            android:hint="Adicione o email"
+            />
+
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pass:"
+            android:textSize="20sp"
+            android:layout_gravity="center"/>
+
+        <EditText
+            android:id="@+id/edit_Pass"
+            android:layout_width="305dp"
+            android:layout_height="61dp"
+            android:layout_gravity="center"
+            android:hint="Adicione a password"
+            android:inputType="textPassword" />
+
+
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/buttonEntrar"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:text="Entrar" />
+
+    <Button
+        android:id="@+id/buttonRegistro"
+        android:layout_width="119dp"
+        android:layout_height="50dp"
+        android:text="Registrar" />
+
+</LinearLayout>

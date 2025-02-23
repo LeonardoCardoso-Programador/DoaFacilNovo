@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "966907041052",
+    "project_id": "doafacil-61ca8",
+    "storage_bucket": "doafacil-61ca8.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:966907041052:android:b0bb7e37bb992fbd0a56d9",
+        "android_client_info": {
+          "package_name": "com.example.doafacilnovo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBzl4ZXrnNVfr79cT_0l9g2L20Un3CUxOI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

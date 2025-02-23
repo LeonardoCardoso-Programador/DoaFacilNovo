@@ -1,0 +1,79 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="10dp"
+    android:padding="5dp"
+    android:fitsSystemWindows="true">
+
+    <!-- Fundo com borda sombreada -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:background="@drawable/item_borda_sombra" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:layout_gravity="center_horizontal">
+
+        <!-- ImageView para a imagem da doação -->
+        <ImageView
+            android:id="@+id/myImageViewDoacao"
+            android:layout_width="111dp"
+            android:layout_height="148dp"
+            android:scaleType="centerCrop"
+            android:padding="10dp"
+            android:background="@drawable/image_border"
+            android:src="@drawable/ic_adicionar" />
+
+        <!-- Conteúdo do item -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="146dp"
+            android:orientation="vertical"
+            android:padding="10dp">
+
+            <!-- Título da doação -->
+            <TextView
+                android:id="@+id/titulo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:text="Banana"
+                android:textColor="@android:color/black"
+                android:textSize="18sp" />
+
+            <!-- Nome do doador e Status de Disponibilidade -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="2">
+
+                <!-- Nome do doador alinhado à esquerda -->
+                <TextView
+                    android:id="@+id/nome"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Leonardo"
+                    android:textColor="@android:color/darker_gray"
+                    android:textSize="14sp" />
+
+                <!-- Status de disponibilidade alinhado à direita -->
+                <TextView
+                    android:id="@+id/statusDisponibilidade"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Disponível"
+                    android:textColor="@color/verde"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+            <!-- Comentários adicionais ou descrições, caso existam -->
+            <!-- Este espaço pode ser utilizado para adicionar mais detalhes ou descrição do item, se necessário -->
+        </LinearLayout>
+    </LinearLayout>
+</FrameLayout>

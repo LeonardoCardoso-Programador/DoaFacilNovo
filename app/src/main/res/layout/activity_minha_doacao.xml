@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawer_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MinhaDoacaoActitity"
+    android:fitsSystemWindows="true">
+
+    <!-- Área de conteúdo principal -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <!-- Header com título -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#6200EA"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/headerTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Doa Facil"
+                android:textSize="24sp"
+                android:textColor="@android:color/white"
+                android:fontFamily="sans-serif-medium" />
+        </LinearLayout>
+
+        <!-- Título e botões -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:padding="10dp">
+
+            <TextView
+                android:layout_width="192dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:fontFamily="sans-serif-medium"
+                android:text="Minhas doações"
+                android:textColor="@android:color/black"
+                android:textSize="24sp" />
+
+            <!-- Botão Mapa -->
+            <ImageButton
+                android:id="@+id/ButtonMapa"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Ícone do botão mapa"
+                android:src="@drawable/ic_mapa"
+                android:scaleType="centerInside"
+                android:padding="5dp" />
+
+            <!-- Botão Menu -->
+            <ImageButton
+                android:id="@+id/ButtonMenu"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Ícone do botão menu"
+                android:src="@drawable/ic_menu"
+                android:scaleType="centerInside"
+                android:padding="8dp" />
+        </LinearLayout>
+
+        <!-- Botões de filtro -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="10dp">
+
+            <Button
+                android:id="@+id/buttonFiltroDisponivel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Disponível" />
+
+            <Button
+                android:id="@+id/buttonFiltroIndisponivel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="Indisponível" />
+        </LinearLayout>
+
+        <!-- Lista de doações -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:padding="16dp">
+
+            <ListView
+                android:id="@+id/listDoacao"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:divider="@android:color/transparent"
+                android:dividerHeight="8dp" />
+        </LinearLayout>
+
+        <!-- Botão de adicionar -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:padding="16dp"
+            android:orientation="vertical">
+
+            <ImageButton
+                android:id="@+id/ButtonAdicionar"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Ícone do botão adicionar"
+                android:src="@drawable/ic_adicionar"
+                android:scaleType="centerInside"
+                android:padding="8dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Adicionar doação"
+                android:gravity="center"
+                android:textSize="16sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Navigation Drawer -->
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/nav_view"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="end"
+        app:menu="@drawable/drawer_menu" />
+</androidx.drawerlayout.widget.DrawerLayout>
