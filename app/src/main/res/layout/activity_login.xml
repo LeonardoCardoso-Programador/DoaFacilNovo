@@ -1,93 +1,94 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".MainActivity"
-    android:gravity="center">
+    android:gravity="center"
+    android:padding="20dp">  <!-- Aumentei o padding para melhor espaçamento -->
 
     <TextView
         android:id="@+id/valor_Resultado_Dolares"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:fontFamily="casual"
-        android:text="Doa Facil"
+        android:text="Doa Fácil"
         android:textColor="#4285F4"
         android:textSize="50sp" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:text="Preencha suas credenciais"
         android:textSize="20sp"
-        android:layout_gravity="center"
-        android:text="Preencha o PIN"
-        android:layout_marginBottom="50dp"/>
+        android:layout_marginBottom="30dp" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:gravity="center"
-        android:orientation="horizontal">
+        android:orientation="vertical">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="User:"
-            android:textSize="20sp"
-            android:layout_gravity="center"/>
-
+        <!--invoke the background as the
+            custom_edit_text_rounded-->
         <EditText
-            android:id="@+id/edit_Email"
-            android:layout_width="305dp"
-            android:layout_height="61dp"
-            android:layout_gravity="center"
-            android:hint="Adicione o email"
-            />
+            android:id="@+id/editEmail"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="32dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/edit_text_custom"
+            android:drawablePadding="12dp"
+            android:hint="Email"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp" />
 
-
+        <!--same background for the password field
+            as the custom_edit_text_rounded-->
+        <EditText
+            android:id="@+id/editPass"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/edit_text_custom"
+            android:drawablePadding="12dp"
+            android:hint="Password"
+            android:inputType="numberPassword"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp" />
 
     </LinearLayout>
-
+    <!-- Opções de lembrar senha e registrar -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:gravity="center"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:padding="1dp"
+        android:gravity="center">
 
         <TextView
+            android:id="@+id/buttonRegistro"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Pass:"
-            android:textSize="20sp"
-            android:layout_gravity="center"/>
+            android:text="Registrar-se"
+            android:textSize="18sp"
+            android:textColor="#4285F4"
+            android:layout_marginEnd="50dp"/>
 
-        <EditText
-            android:id="@+id/edit_Pass"
-            android:layout_width="305dp"
-            android:layout_height="61dp"
-            android:layout_gravity="center"
-            android:hint="Adicione a password"
-            android:inputType="textPassword" />
-
-
-
+        <CheckBox
+            android:id="@+id/checkBoxLembrar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Lembrar?"
+            android:textSize="18sp"
+            android:textColor="#4285F4"/>
     </LinearLayout>
 
+    <!-- Botão de entrar -->
     <Button
         android:id="@+id/buttonEntrar"
-        android:layout_width="100dp"
+        android:layout_width="280dp"
         android:layout_height="50dp"
-        android:text="Entrar" />
-
-    <Button
-        android:id="@+id/buttonRegistro"
-        android:layout_width="119dp"
-        android:layout_height="50dp"
-        android:text="Registrar" />
-
+        android:text="Entrar"
+        android:layout_marginTop="20dp"/>
 </LinearLayout>

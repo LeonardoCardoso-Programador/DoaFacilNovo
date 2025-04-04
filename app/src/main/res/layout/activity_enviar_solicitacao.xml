@@ -1,0 +1,170 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="#FFFFFF"
+    android:padding="16dp"
+    android:fitsSystemWindows="true"
+    android:clipToPadding="false">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Título e Botões -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="58dp"
+            android:layout_marginBottom="16dp"
+            android:background="#FFFFFF"
+            android:elevation="4dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:padding="16dp">
+
+            <!-- Botão Voltar -->
+            <ImageButton
+                android:id="@+id/buttonVoltar"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Ícone do botão voltar"
+                android:padding="8dp"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_voltar" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:fontFamily="sans-serif-medium"
+                android:gravity="center"
+                android:text="Enviar solicitação"
+                android:textColor="@android:color/black"
+                android:textSize="24sp" />
+        </LinearLayout>
+
+        <!-- Informações do item -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingVertical="8dp">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/textNomeItem"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Schär Granola Gluten-Free"
+                    android:textSize="22sp"
+                    android:textColor="#000000"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Informações do doador -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingVertical="8dp">
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/profileImage"
+                android:layout_width="41dp"
+                android:layout_height="43dp"
+                android:background="@drawable/circle_background"
+                android:padding="4dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_adicionar"
+                app:civ_border_width="2dp"
+                app:civ_border_color="@color/black"
+                android:paddingRight="3dp"
+                />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Horario de recolhas disponiveis "
+                    android:textColor="#777777"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/textHorario"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Seg a Sex das 10:00 - 17:00"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="#000000" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Campo para escolher o horário de recolha -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Por vafor especifique o seu horario de recolha"
+            android:textSize="16sp"
+            android:textColor="#000000"
+            android:paddingTop="12dp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/editPickupTime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Seg - 18h"
+            android:textSize="14sp"
+            android:padding="12dp"
+            android:layout_marginTop="4dp" />
+
+        <!-- Campo para adicionar uma mensagem -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Adicione uma menssagem a sua solicitação"
+            android:textSize="16sp"
+            android:textColor="#000000"
+            android:paddingTop="16dp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/editMessage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Adicione uma menssagem"
+            android:textSize="14sp"
+            android:padding="12dp"
+            android:layout_marginTop="4dp" />
+
+        <!-- Botão de envio -->
+        <Button
+            android:id="@+id/buttonEnviarSolicitacao"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:backgroundTint="#6200EE"
+            android:text="Enviar solicitação"
+            android:textColor="@android:color/white"
+            android:padding="12dp"
+            android:fontFamily="sans-serif-medium"
+            android:textAllCaps="false" />
+
+    </LinearLayout>
+</ScrollView>

@@ -84,7 +84,9 @@ class RegisterActivity : AppCompatActivity() {
             "telefone" to telefone,
             "email" to email,
             "latitude" to userLatitude,
-            "longitude" to userLongitude
+            "longitude" to userLongitude,
+            "compararSolicitacao" to 0,
+            "nDoacoes" to 0
         )
 
         // Salvar o documento no Firestore com o UID como ID do documento

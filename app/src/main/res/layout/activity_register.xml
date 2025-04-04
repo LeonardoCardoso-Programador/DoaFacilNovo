@@ -7,9 +7,8 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".Login_Registro.RegisterActivity"
-    android:gravity="center">
-
-
+    android:gravity="center"
+    >
 
     <!-- Título -->
     <TextView
@@ -18,7 +17,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:fontFamily="casual"
-        android:text="Doa Facil"
+        android:text="Doa Fácil "
         android:textColor="#4285F4"
         android:textSize="50sp" />
 
@@ -30,103 +29,89 @@
         android:layout_gravity="center"
         android:text="Preencha"
         android:layout_marginBottom="30dp"/>
-
-        <!-- Campo Nome -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:orientation="horizontal">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Nome:"
-                android:textSize="20sp"
-                android:layout_gravity="center" />
-
-            <EditText
-                android:id="@+id/edit_Nome"
-                android:layout_width="305dp"
-                android:layout_height="61dp"
-                android:layout_gravity="center"
-                android:hint="Adicione o seu nome" />
-        </LinearLayout>
-
-
-
-    <!-- Campo Email -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
+        android:orientation="vertical"
         android:gravity="center"
-        android:orientation="horizontal">
+        android:padding="16dp">
+    <!-- Nome -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:text="Nome"
+        android:layout_gravity="left"
+        android:textColor="@android:color/black"
+        android:textSize="16sp" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Email:"
-            android:textSize="20sp"
-            android:layout_gravity="center" />
-
-        <EditText
-            android:id="@+id/edit_Email"
-            android:layout_width="305dp"
-            android:layout_height="61dp"
-            android:layout_gravity="center"
-            android:hint="Adicione o seu email"
-            android:inputType="textEmailAddress" />
-    </LinearLayout>
-
-    <!-- Campo Senha -->
-    <LinearLayout
+    <EditText
+        android:id="@+id/edit_Nome"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:gravity="center"
-        android:orientation="horizontal">
+        android:hint="Nome"
+        android:padding="12dp"
+        android:background="@android:drawable/edit_text"
+        android:layout_marginBottom="12dp"/>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Pass:"
-            android:textSize="20sp"
-            android:layout_gravity="center" />
+    <!-- Email -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Email"
+        android:layout_gravity="left"
+        android:textSize="16sp"
+        android:textColor="@android:color/black"
+        android:layout_marginBottom="4dp"/>
 
-        <EditText
-            android:id="@+id/edit_Pass"
-            android:layout_width="305dp"
-            android:layout_height="61dp"
-            android:layout_gravity="center"
-            android:hint="Adicione a senha"
-            android:inputType="textPassword" />
-    </LinearLayout>
-
-    <!-- Campo Telefone -->
-    <LinearLayout
+    <EditText
+        android:id="@+id/edit_Email"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:gravity="center"
-        android:orientation="horizontal">
+        android:hint="Email"
+        android:inputType="textEmailAddress"
+        android:padding="12dp"
+        android:background="@android:drawable/edit_text"
+        android:layout_marginBottom="12dp"/>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Telefone:"
-            android:textSize="20sp"
-            android:layout_gravity="center" />
+    <!-- Telefone -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Passe"
+        android:layout_gravity="left"
+        android:textSize="16sp"
+        android:textColor="@android:color/black"
+        android:layout_marginBottom="4dp"/>
 
-        <EditText
-            android:id="@+id/edit_Telefone"
-            android:layout_width="305dp"
-            android:layout_height="61dp"
-            android:layout_gravity="center"
-            android:hint="Adicione o seu telefone"
-            android:inputType="phone" />
-    </LinearLayout>
+    <EditText
+        android:id="@+id/edit_Pass"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Passe"
+        android:inputType="textPassword"
+        android:padding="12dp"
+        android:background="@android:drawable/edit_text"
+        android:layout_marginBottom="12dp"/>
+
+    <!-- Informação Extra -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Telefone"
+        android:layout_gravity="left"
+        android:textSize="16sp"
+        android:textColor="@android:color/black"
+        android:layout_marginBottom="4dp"/>
+
+    <EditText
+        android:id="@+id/edit_Telefone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Telefone"
+        android:padding="12dp"
+        android:background="@android:drawable/edit_text"
+        android:layout_marginBottom="16dp"/>
 
     <!-- Botões -->
     <Button
@@ -134,12 +119,19 @@
         android:layout_width="119dp"
         android:layout_height="50dp"
         android:layout_marginTop="20dp"
-        android:text="Registrar" />
+        android:text="Registrar"
+        android:backgroundTint="#6200EA"
+        android:textColor="@android:color/white"/>
 
     <Button
         android:id="@+id/buttonVoltar"
         android:layout_width="119dp"
         android:layout_height="50dp"
         android:layout_marginTop="10dp"
-        android:text="Voltar" />
+        android:text="Voltar"
+        android:backgroundTint="#9E9E9E"
+        android:textColor="@android:color/white"/>
+
 </LinearLayout>
+</LinearLayout>
+

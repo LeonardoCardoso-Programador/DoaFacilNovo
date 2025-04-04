@@ -1,7 +1,5 @@
 package com.example.doafacilnovo
 
-import android.graphics.Bitmap
-
 data class InformacoesDoacao(
     val titulo: String,
     val nome: String,
@@ -10,7 +8,7 @@ data class InformacoesDoacao(
     val latitude: Double,
     val data: String?,
     val disponibilidade: String,
-    val primeiraImagem: Bitmap?, // Apenas a primeira imagem em Bitmap
+    val primeiraImagem: String?, // Apenas a primeira imagem em Bitmap
 )
 {
     override fun toString(): String {

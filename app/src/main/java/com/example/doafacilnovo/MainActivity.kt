@@ -1,6 +1,7 @@
 package com.example.doafacilnovo
 
 import CustomAdapter
+import android.app.ProgressDialog
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -13,17 +14,10 @@ import com.example.doafacilnovo.databinding.ActivityMainBinding
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.firestore.FirebaseFirestore
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.util.Log
-import android.widget.TextView
-import androidx.core.content.ContextCompat
-import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.StorageReference
-import java.io.File
-import java.io.IOException
+import com.example.doafacilnovo.Login_Registro.LoginActivity
 import java.util.*
-
+import kotlin.jvm.java
 
 
 class MainActivity : AppCompatActivity() {
@@ -34,14 +28,27 @@ class MainActivity : AppCompatActivity() {
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navigationView: NavigationView
     private val firestore = FirebaseFirestore.getInstance()  // Inicializa o Firestore
+    private lateinit var progressDialog: ProgressDialog // Declare o ProgressDialog
+    private lateinit var userUid: String
+    private lateinit var sharedPreferences: SharedPreferences
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
+        // Inicialize o ProgressDialog
+        progressDialog = ProgressDialog(this)
+        progressDialog.setMessage("Carregando dados...") // Mensagem do ProgressDialog
+        progressDialog.setCancelable(false) // Impede o cancelamento ao tocar fora do dialog
+
         // Inicializando o DrawerLayout e NavigationView
         drawerLayout = findViewById(R.id.drawer_layout)
         navigationView = findViewById(R.id.nav_view)
+
+        // Inicializando SharedPreferences
+        sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+        userUid = getUserUid() ?: ""
 
         // Criando e configurando o adapter
         val adapter = CustomAdapter(this, listaDoacao)
@@ -67,10 +74,6 @@ class MainActivity : AppCompatActivity() {
 
         }
 
-
-
-
-
         // Ação do botão Menu (abre o DrawerLayout à direita)
         binding.ButtonMenu.setOnClickListener {
             drawerLayout.openDrawer(GravityCompat.END)  // Abrindo o menu à direita
@@ -83,8 +86,6 @@ class MainActivity : AppCompatActivity() {
             true
         }
 
-
-
     }
 
     override fun onResume() {
@@ -92,9 +93,14 @@ class MainActivity : AppCompatActivity() {
 
         // Recarregar as doações apenas, sem recriar o adapter
         fetchDoacoes()
+
+        verificarNovasSolicitacoes(userUid)
     }
 
-
+    // Função para obter o UID do usuário salvo no SharedPreferences
+    private fun getUserUid(): String? {
+        return sharedPreferences.getString("USER_UID", null)
+    }
 
     // Função que trata as ações de navegação
     private fun handleNavigationItemSelected(item: MenuItem) {
@@ -102,9 +108,7 @@ class MainActivity : AppCompatActivity() {
         val userUid = intent.getStringExtra("USER_UID") ?: "UID nao disponivel"
         when (item.itemId) {
             R.id.nav_home -> {
-                // Ação para a opção "Home"
-                val intent = Intent(this, MainActivity::class.java)
-                startActivity(intent)
+                true
             }
 
             R.id.nav_doacoes -> {
@@ -114,14 +118,38 @@ class MainActivity : AppCompatActivity() {
                 startActivity(intent)
             }
 
-            R.id.nav_services -> {
-                // Ação para a opção "Serviços"
+            R.id.nav_MapaLoc -> {
+
+                val intent = Intent(this, LocalizacaoActivity::class.java)
+                intent.putExtra("USER_UID", userUid)
+                intent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+                startActivity(intent)
+
             }
 
-            R.id.nav_contact -> {
-                // Ação para a opção "Contato"
+            R.id.nav_Perfil -> {
+                val intent = Intent(this, PerfilActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+                startActivity(intent)
             }
-
+            R.id.nav_Vizualizar_Perfil -> {
+                val intent = Intent(this, ListagensUserActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+                startActivity(intent)
+            }
+            R.id.nav_Solicitacoes -> {
+                val intent = Intent(this, SolicitacoesRecebidasActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+                startActivity(intent)
+            }
+            R.id.nav_SolicitacoesFeitas -> {
+                val intent = Intent(this, SolicitacoesFeitasActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+                startActivity(intent)
+            }
+            R.id.nav_Logout ->{
+                finish()
+            }
             else -> {
                 // Caso não haja nenhuma ação definida para o item, nada acontece
             }
@@ -137,17 +165,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun fetchDoacoes() {
-        firestore.collection("doacoes")
-            .whereEqualTo("disponibilidade", "disponível") // Aqui já estamos buscando as doações disponíveis
+        progressDialog.show()
+
+        firestore.collection("doacoes").whereEqualTo("disponibilidade", "disponível")
             .get()
             .addOnSuccessListener { querySnapshot ->
-                listaDoacao.clear()  // Limpa a lista antes de adicionar novos dados
+                listaDoacao.clear()
 
                 if (!querySnapshot.isEmpty) {
-                    val doacoes = mutableListOf<InformacoesDoacao>() // Lista temporária para armazenar as doações
-                    var doacoesProcessadas = 0 // Contador de doações processadas
-
-                    // Itera sobre os documentos das doações
                     for (document in querySnapshot.documents) {
                         val titulo = document.getString("titulo") ?: "Título desconhecido"
                         val descricao = document.getString("descricao") ?: "Sem descrição"
@@ -156,88 +181,30 @@ class MainActivity : AppCompatActivity() {
                         val disponibilidade = document.getString("disponibilidade") ?: "Indisponível"
                         val latitude = document.getDouble("latitude") ?: 0.0
                         val longitude = document.getDouble("longitude") ?: 0.0
-                        val pastaID = document.getString("pastaID") // Pasta ID para associar as imagens
-                        val imagemUrls = document.get("imagemUrls") as? List<String> ?: emptyList()  // Lista de URLs das imagens
+                        val primeiraImagemUrl = document.getString("primeiraImagemUrl")
 
-                        // Aqui, chamamos a função para buscar apenas a primeira imagem
-                        pastaID?.let {
-                            if (imagemUrls.isNotEmpty()) {
-                                val primeiraImagemUrl = imagemUrls.first()
-
-                                // Buscar apenas a primeira imagem
-                                fetchPrimeiraImagem(primeiraImagemUrl) { primeiraImagem ->
-                                    // Cria o objeto da doação com a primeira imagem
-                                    val doacao = InformacoesDoacao(
-                                        titulo, nomeUsuario, descricao, longitude, latitude, data, disponibilidade, primeiraImagem
-                                    )
-
-                                    // Adiciona a doação na lista temporária
-                                    doacoes.add(doacao)
-
-                                    // Incrementa o contador de doações processadas
-                                    doacoesProcessadas++
-
-                                    // Se todas as doações foram processadas (última doação), atualiza a lista de doações
-                                    if (doacoesProcessadas == querySnapshot.documents.size) {
-                                        listaDoacao.addAll(doacoes) // Adiciona todas as doações à lista final
-                                        // Atualiza o adapter após adicionar a doação
-                                        if (binding.listDoacao.adapter == null) {
-                                            binding.listDoacao.adapter = CustomAdapter(this, listaDoacao)
-                                        } else {
-                                            (binding.listDoacao.adapter as CustomAdapter).notifyDataSetChanged()
-                                        }
-                                    }
-                                }
-                            } else {
-                                // Caso não haja imagem
-                                doacoesProcessadas++
-                            }
-                        }
+                        val doacao = InformacoesDoacao(
+                            titulo, nomeUsuario, descricao, longitude, latitude, data, disponibilidade, primeiraImagemUrl
+                        )
+                        listaDoacao.add(doacao)
                     }
+
+                    (binding.listDoacao.adapter as? CustomAdapter)?.notifyDataSetChanged()
                 } else {
-                    // Se não houver doações disponíveis
                     Toast.makeText(this, "Nenhuma doação disponível.", Toast.LENGTH_SHORT).show()
                 }
+
+                progressDialog.dismiss()
             }
             .addOnFailureListener { exception ->
                 Toast.makeText(this, "Erro ao buscar doações: ${exception.message}", Toast.LENGTH_SHORT).show()
+                progressDialog.dismiss()
             }
     }
 
 
 
-
-    private fun fetchPrimeiraImagem(imagemUrl: String, callback: (Bitmap?) -> Unit) {
-        val storageReference: StorageReference = FirebaseStorage.getInstance().getReferenceFromUrl(imagemUrl)
-
-        // Criar um arquivo temporário para armazenar a imagem
-        val localFile = File.createTempFile("primeiraImagem", "jpg")
-
-        storageReference.getFile(localFile).addOnSuccessListener {
-            try {
-                // Converte o arquivo baixado para um Bitmap
-                val bitmap = BitmapFactory.decodeFile(localFile.absolutePath)
-                callback(bitmap)  // Retorna a primeira imagem (Bitmap)
-            } catch (e: IOException) {
-                e.printStackTrace()
-                callback(null)  // Caso haja erro na conversão
-            }
-        }.addOnFailureListener { exception ->
-            // Caso haja erro ao baixar a imagem
-            Toast.makeText(this, "Erro ao baixar a imagem: ${exception.message}", Toast.LENGTH_SHORT).show()
-            callback(null)  // Retorna null caso haja erro
-        }
-    }
-
-
-
-
-
-
-
-
-
-    private fun verificarExpiracaoDoacoes() {
+    /*private fun verificarExpiracaoDoacoes() {
         val agora = Date() // Pega a data e hora atuais
 
         firestore.collection("doacoes")
@@ -268,7 +235,77 @@ class MainActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         verificarExpiracaoDoacoes() // Atualiza as doações expiradas ao iniciar a tela
+    }*/
+
+    private fun verificarNovasSolicitacoes(userUid: String) {
+        val userRef = firestore.collection("users").document(userUid)
+
+        // Listener em tempo real
+        userRef.addSnapshotListener { document, e ->
+            if (e != null) {
+                Log.w("Firestore", "Listen failed.", e)
+                return@addSnapshotListener
+            }
+
+            if (document != null && document.exists()) {
+                val solicitacoesRecebidas = document.getLong("solicitacoesRecebidas") ?: 0
+                val compararSolicitacao = document.getLong("compararSolicitacao") ?: 0
+
+                if (solicitacoesRecebidas > compararSolicitacao && !isFinishing) {
+                    mostrarDialogNovasSolicitacoes(userUid, solicitacoesRecebidas, compararSolicitacao)
+                }
+
+            } else {
+                runOnUiThread {
+                    Toast.makeText(this, "Usuário não encontrado.", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
     }
+
+
+
+    private fun mostrarDialogNovasSolicitacoes(userUid: String, novasSolicitacoes: Long, compararSolicitacoes: Long) {
+        if (!isFinishing && !isDestroyed) { // Verifica se a Activity ainda está ativa
+            val valorNovaSolicitacoes = novasSolicitacoes - compararSolicitacoes
+            val mensagem = "Você tem +$valorNovaSolicitacoes novas solicitações recebidas!"
+
+            val dialog = androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Novas Solicitações")
+                .setMessage(mensagem)
+                .setPositiveButton("OK") { dialog, _ ->
+                    atualizarCompararSolicitacao(userUid, novasSolicitacoes)
+                    dialog.dismiss()
+                }
+                .setNegativeButton("Ir para Solicitações") { dialog, _ ->
+                    val intent = Intent(this, SolicitacoesRecebidasActivity::class.java)
+                    startActivity(intent)
+                    atualizarCompararSolicitacao(userUid, novasSolicitacoes)
+                    dialog.dismiss()
+                }
+                .create()
+
+            dialog.show()
+        } else {
+            Log.w("Dialog", "A Activity foi finalizada antes de exibir o diálogo.")
+        }
+    }
+
+
+
+    private fun atualizarCompararSolicitacao(userUid: String, novoValor: Long) {
+        val userRef = firestore.collection("users").document(userUid)
+
+        userRef.update("compararSolicitacao", novoValor)
+            .addOnSuccessListener {
+                Log.d("Atualização", "compararSolicitacao atualizado para $novoValor")
+            }
+            .addOnFailureListener { e ->
+                Log.e("Erro", "Falha ao atualizar compararSolicitacao: ${e.message}")
+            }
+    }
+
+
 
 
 }

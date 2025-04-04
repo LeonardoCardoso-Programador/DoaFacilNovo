@@ -26,7 +26,7 @@
                 android:id="@+id/headerTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Doa Facil"
+                android:text="Doa Fácil "
                 android:textSize="24sp"
                 android:textColor="@android:color/white"
                 android:fontFamily="sans-serif-medium"
@@ -34,36 +34,25 @@
         </LinearLayout>
 
         <!-- Seção com título e botões -->
+        <!-- Título e botões -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:background="#FFFFFF"
+            android:elevation="4dp"
             android:gravity="center"
-            android:padding="10dp">
+            android:orientation="horizontal"
+            android:padding="10dp"
+            android:layout_marginBottom="16dp">
 
-            <!-- Título Food -->
             <TextView
-                android:layout_width="192dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:fontFamily="sans-serif-medium"
-                android:padding="10dp"
-                android:text="Food"
+                android:text="Listas de doações "
                 android:textColor="@android:color/black"
                 android:textSize="24sp" />
-
-
-
-            <!-- Botão Mapa -->
-            <ImageButton
-                android:id="@+id/ButtonMapa"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:background="?android:attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Ícone do botão mapa"
-                android:src="@drawable/ic_mapa"
-                android:scaleType="centerInside"
-                android:padding="5dp" />
 
             <!-- Botão Menu -->
             <ImageButton
@@ -72,29 +61,11 @@
                 android:layout_height="48dp"
                 android:background="?android:attr/selectableItemBackgroundBorderless"
                 android:contentDescription="Ícone do botão menu"
-                android:src="@drawable/ic_menu"
+                android:padding="8dp"
                 android:scaleType="centerInside"
-                android:padding="8dp" />
+                android:src="@drawable/ic_menu" />
         </LinearLayout>
-
         <!-- Botão Filtrar -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:padding="10dp">
-
-            <ImageButton
-                android:id="@+id/ButtonFiltrar"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:background="?android:attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Ícone do botão filtrar"
-                android:src="@drawable/ic_filtrar"
-                android:scaleType="centerInside"
-                android:padding="8dp" />
-        </LinearLayout>
 
         <!-- Lista de Doações -->
         <LinearLayout
@@ -104,6 +75,23 @@
             android:gravity="center_vertical"
             android:orientation="vertical"
             android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:text="Doações"
+                android:textColor="@android:color/black"
+                android:textSize="22sp"
+                android:paddingBottom="12dp"
+                android:layout_gravity="center" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@android:color/darker_gray"
+                android:layout_marginBottom="12dp"/>
+
 
             <ListView
                 android:id="@+id/listDoacao"

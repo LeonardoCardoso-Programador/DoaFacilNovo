@@ -49,8 +49,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:weightSum="2">
+                android:orientation="horizontal">
 
                 <!-- Nome do doador alinhado à esquerda -->
                 <TextView
@@ -69,11 +68,10 @@
                     android:layout_height="wrap_content"
                     android:text="Disponível"
                     android:textColor="@color/verde"
-                    android:textSize="14sp" />
+                    android:textSize="14sp"
+                    android:gravity="end" />
             </LinearLayout>
 
-            <!-- Comentários adicionais ou descrições, caso existam -->
-            <!-- Este espaço pode ser utilizado para adicionar mais detalhes ou descrição do item, se necessário -->
         </LinearLayout>
     </LinearLayout>
 </FrameLayout>

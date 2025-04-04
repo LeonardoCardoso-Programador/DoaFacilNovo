@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+
+    <!-- Cor de fundo (opcional, pode ser transparente) -->
+    <solid android:color="#4D808080"/>
+
+    <!-- Definição da borda -->
+    <stroke
+        android:width="4dp"
+        android:color="#4D808080"/> <!-- Cor roxa, pode alterar -->
+
+    <!-- Margem interna da borda -->
+    <padding
+        android:left="4dp"
+        android:right="4dp"
+        android:top="10dp"
+        android:bottom="4dp"/>
+
+    <!-- Borda arredondada -->
+    <corners
+        android:radius="12dp"/> <!-- Ajuste o valor para controlar o grau de arredondamento -->
+</shape>

@@ -9,35 +9,40 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="8dp">
+        android:paddingBottom="16dp">
 
-        <!-- Título da Tela -->
+        <!-- Título e Botões -->
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="58dp"
+            android:layout_marginBottom="16dp"
+            android:background="#FFFFFF"
+            android:elevation="4dp"
+            android:gravity="center"
             android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:padding="16dp">
 
-            <!-- Botão de Voltar -->
+            <!-- Botão Voltar -->
             <ImageButton
                 android:id="@+id/buttonVoltar"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:src="@drawable/ic_voltar"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Ícone do botão voltar"
+                android:padding="8dp"
                 android:scaleType="centerInside"
-                android:background="@android:color/transparent"
-                android:contentDescription="Voltar" />
+                android:src="@drawable/ic_voltar" />
 
-            <!-- Título -->
             <TextView
-                android:id="@+id/headerTitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:fontFamily="sans-serif-medium"
                 android:gravity="center"
-                android:text="Free Food"
-                android:textSize="20sp"
+                android:text="Adicionar doação"
                 android:textColor="@android:color/black"
-                android:fontFamily="sans-serif-medium" />
+                android:textSize="24sp" />
         </LinearLayout>
 
         <!-- Seção de Imagem -->
@@ -118,6 +123,23 @@
             android:hint="Adicione uma descrição"
             android:background="@android:drawable/editbox_background" />
 
+        <!-- Campo Horários de Entrega -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Horários de Entrega"
+            android:textSize="16sp"
+            android:textColor="@android:color/black" />
+
+        <EditText
+            android:id="@+id/editHorarioEntrega"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:hint="Ex: Seg a Sex, as 18h até 20h"
+            android:background="@android:drawable/editbox_background" />
+
         <!-- Mapa e Localização -->
         <TextView
             android:layout_width="wrap_content"
@@ -169,7 +191,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:backgroundTint="#6200EA"
-            android:text="Submit"
+            android:text="Adicionar"
             android:textColor="@android:color/white"
             android:textSize="16sp" />
     </LinearLayout>

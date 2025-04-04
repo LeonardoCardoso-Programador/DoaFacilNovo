@@ -17,12 +17,16 @@ import com.example.doafacilnovo.databinding.ActivityLoginBinding
 import com.example.doafacilnovo.databinding.ActivityMainBinding
 import com.google.android.play.integrity.internal.l
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import java.util.Date
 
 class LoginActivity : AppCompatActivity() {
 
     private val binding by lazy { ActivityLoginBinding.inflate(layoutInflater) }
     private val auth = FirebaseAuth.getInstance()
     private lateinit var sharedPreferences: SharedPreferences
+    private val firestore = FirebaseFirestore.getInstance()  // Inicializa o Firestore
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,6 +45,8 @@ class LoginActivity : AppCompatActivity() {
         } else {
             Log.d("LoginActivity", "UID recuperado: $storedUid")
         }
+        carregarCredenciais()
+
 
         binding.buttonRegistro.setOnClickListener {
             val intent = Intent(this, RegisterActivity::class.java)
@@ -57,24 +63,23 @@ class LoginActivity : AppCompatActivity() {
                 auth.signInWithEmailAndPassword(email, pass)
                     .addOnCompleteListener { login ->
                         if (login.isSuccessful) {
-                            // Obtendo o UID do usuário autenticado
                             val uid = auth.currentUser?.uid
 
                             if (uid != null) {
-                                // Salva o UID no SharedPreferences
-                                Log.d("LoginActivity", "UID obtido após login: $uid")
                                 saveUserUid(uid)
 
-                                // Exibe mensagem de sucesso
+                                // Verifica se o checkbox está marcado para salvar credenciais
+                                if (binding.checkBoxLembrar.isChecked) {
+                                    salvarCredenciais(email, pass)
+                                } else {
+                                    limparCredenciais()
+                                }
+
                                 Toast.makeText(this, "Login realizado com sucesso", Toast.LENGTH_SHORT).show()
 
-                                // Navega para a MainActivity
                                 val intent = Intent(this, MainActivity::class.java)
                                 intent.putExtra("USER_UID", uid)
                                 startActivity(intent)
-                                finish()
-                            } else {
-                                Log.d("LoginActivity", "UID é nulo após login.")
                             }
                         }
                     }
@@ -84,6 +89,35 @@ class LoginActivity : AppCompatActivity() {
             }
         }
     }
+
+    private fun salvarCredenciais(email: String, senha: String) {
+        val editor = sharedPreferences.edit()
+        editor.putString("EMAIL", email)
+        editor.putString("SENHA", senha)
+        editor.putBoolean("LEMBRAR", true)
+        editor.apply()
+    }
+
+    private fun carregarCredenciais() {
+        val email = sharedPreferences.getString("EMAIL", "")
+        val senha = sharedPreferences.getString("SENHA", "")
+        val lembrar = sharedPreferences.getBoolean("LEMBRAR", false)
+
+        if (lembrar) {
+            binding.editEmail.setText(email)
+            binding.editPass.setText(senha)
+            binding.checkBoxLembrar.isChecked = true
+        }
+    }
+
+    private fun limparCredenciais() {
+        val editor = sharedPreferences.edit()
+        editor.remove("EMAIL")
+        editor.remove("SENHA")
+        editor.putBoolean("LEMBRAR", false)
+        editor.apply()
+    }
+
 
     // Salva o UID do usuário nas SharedPreferences
     private fun saveUserUid(uid: String) {
@@ -97,4 +131,40 @@ class LoginActivity : AppCompatActivity() {
     private fun getUserUid(): String {
         return sharedPreferences.getString("USER_UID", "UID não encontrado") ?: "UID não encontrado"
     }
+
+
+
+    private fun verificarExpiracaoDoacoes() {
+        val agora = Date() // Pega a data e hora atuais
+
+        firestore.collection("doacoes")
+            .whereEqualTo("disponibilidade", "disponível") // Só busca as disponíveis
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                for (document in querySnapshot.documents) {
+                    val dataExpiracao = document.getDate("dataExpiracao")
+
+                    if (dataExpiracao != null && dataExpiracao.before(agora)) {
+                        // Se a data de expiração já passou, atualiza o status para "indisponível"
+                        firestore.collection("doacoes").document(document.id)
+                            .update("disponibilidade", "indisponível")
+                            .addOnSuccessListener {
+                                Log.d("Expiração", "Doação ${document.id} marcada como indisponível")
+                            }
+                            .addOnFailureListener { e ->
+                                Log.e("Expiração", "Erro ao atualizar a doação: ${e.message}")
+                            }
+                    }
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("Expiração", "Erro ao buscar doações: ${e.message}")
+            }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        verificarExpiracaoDoacoes() // Atualiza as doações expiradas ao iniciar a tela
+    }
+
 }

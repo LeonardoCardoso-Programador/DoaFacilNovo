@@ -9,11 +9,28 @@
         android:title="Minhas Doações"
        />
     <item
-        android:id="@+id/nav_services"
-        android:title="Serviços"
+        android:id="@+id/nav_MapaLoc"
+        android:title="Localizações"
          />
     <item
-        android:id="@+id/nav_contact"
-        android:title="Contato"
+        android:id="@+id/nav_Perfil"
+        android:title="Perfil"
         />
+    <item
+        android:id="@+id/nav_Vizualizar_Perfil"
+        android:title="Vizualizar outros utilizadores"
+        />
+    <item
+        android:id="@+id/nav_Solicitacoes"
+        android:title="Solcitações recebidas"
+        />
+    <item
+        android:id="@+id/nav_SolicitacoesFeitas"
+        android:title="Solcitações feitas"
+        />
+    <item
+        android:id="@+id/nav_Logout"
+        android:title="Logout"
+        />
+
 </menu>

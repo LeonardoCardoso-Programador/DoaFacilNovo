@@ -1,6 +1,7 @@
 package com.example.doafacilnovo
 
 import CustomAdapter
+import android.app.ProgressDialog
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -14,17 +15,16 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import com.example.doafacilnovo.Login_Registro.LoginActivity
 import com.example.doafacilnovo.databinding.ActivityMinhaDoacaoBinding
 import com.google.android.material.navigation.NavigationView
-import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import java.io.File
 import java.io.IOException
 import java.util.Date
-import java.util.function.Consumer
+import kotlin.jvm.java
 
 
 class MinhaDoacaoActitity : AppCompatActivity() {
@@ -39,12 +39,17 @@ class MinhaDoacaoActitity : AppCompatActivity() {
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var userUid: String
 
+    private lateinit var progressDialog: ProgressDialog // Declare o ProgressDialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(binding.root)
 
+        // Inicialize o ProgressDialog
+        progressDialog = ProgressDialog(this)
+        progressDialog.setMessage("Carregando dados...") // Mensagem do ProgressDialog
+        progressDialog.setCancelable(false) // Impede o cancelamento ao tocar fora do dialog
 
         // Inicializando SharedPreferences
         sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
@@ -70,7 +75,15 @@ class MinhaDoacaoActitity : AppCompatActivity() {
         }
 
         binding.listDoacao.setOnItemClickListener { _, _, position, _ ->
-            val intent = Intent(this, EditarDoacaoActivity::class.java)
+
+            val listaDoacaoSelecionada = listaDoacao[position]
+
+            val intent = Intent(this, EditarDoacaoActivity::class.java).apply {
+                putExtra("title", listaDoacaoSelecionada.titulo)
+                putExtra("name", listaDoacaoSelecionada.nome)
+                putExtra("desc", listaDoacaoSelecionada.descricao)
+
+            }
             startActivity(intent)
         }
 
@@ -99,37 +112,80 @@ class MinhaDoacaoActitity : AppCompatActivity() {
         return sharedPreferences.getString("USER_UID", null)
     }
 
+    // Função que trata as ações de navegação
     private fun handleNavigationItemSelected(item: MenuItem) {
-        val userUid = intent.getStringExtra("USER_UID") ?: "UID não disponível"
+
+        val userUid = intent.getStringExtra("USER_UID") ?: "UID nao disponivel"
         when (item.itemId) {
             R.id.nav_home -> {
                 val intent = Intent(this, MainActivity::class.java)
+                intent.putExtra("USER_UID", userUid)
+                intent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+                startActivity(intent)
+                finish()
+            }
+
+            R.id.nav_doacoes -> {
+
+            }
+
+            R.id.nav_MapaLoc -> {
+
+                val intent = Intent(this, LocalizacaoActivity::class.java)
+                intent.putExtra("USER_UID", userUid)
+                intent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+                startActivity(intent)
+                finish()
+
+            }
+
+            R.id.nav_Perfil -> {
+                val intent = Intent(this, PerfilActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+                startActivity(intent)
+                finish()
+            }
+            R.id.nav_Vizualizar_Perfil -> {
+                val intent = Intent(this, ListagensUserActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+                startActivity(intent)
+                finish()
+            }
+            R.id.nav_Solicitacoes -> {
+                val intent = Intent(this, SolicitacoesRecebidasActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+                startActivity(intent)
+                finish()
+            }
+            R.id.nav_SolicitacoesFeitas -> {
+                val intent = Intent(this, SolicitacoesFeitasActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
                 startActivity(intent)
             }
-            R.id.nav_doacoes -> {
-                drawerLayout.closeDrawer(GravityCompat.END) // Evita recriar a mesma activity
+            R.id.nav_Logout ->{
+                val intent = Intent(this, LoginActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                startActivity(intent)
+                finish()
+            }
+
+
+            else -> {
+                // Caso não haja nenhuma ação definida para o item, nada acontece
             }
         }
     }
 
-
-
-
-
-
-
-
     private fun fetchDoacoes() {
+        // Exibe o ProgressDialog enquanto os dados estão sendo carregados
+        progressDialog.show()
+
         firestore.collection("doacoes").whereEqualTo("userUid", userUid)
             .get()
             .addOnSuccessListener { querySnapshot ->
-                listaDoacao.clear()  // Limpa a lista antes de adicionar novos dados
+                listaDoacao.clear()
 
                 if (!querySnapshot.isEmpty) {
-                    val doacoes = mutableListOf<InformacoesDoacao>() // Lista temporária para armazenar as doações
-                    var doacoesProcessadas = 0 // Contador de doações processadas
-
-                    // Itera sobre os documentos das doações
                     for (document in querySnapshot.documents) {
                         val titulo = document.getString("titulo") ?: "Título desconhecido"
                         val descricao = document.getString("descricao") ?: "Sem descrição"
@@ -138,51 +194,24 @@ class MinhaDoacaoActitity : AppCompatActivity() {
                         val disponibilidade = document.getString("disponibilidade") ?: "Indisponível"
                         val latitude = document.getDouble("latitude") ?: 0.0
                         val longitude = document.getDouble("longitude") ?: 0.0
-                        val pastaID = document.getString("pastaID") // Pasta ID para associar as imagens
-                        val imagemUrls = document.get("imagemUrls") as? List<String> ?: emptyList()  // Lista de URLs das imagens
+                        val primeiraImagemUrl = document.getString("primeiraImagemUrl")
 
-                        // Aqui, chamamos a função para buscar apenas a primeira imagem
-                        pastaID?.let {
-                            if (imagemUrls.isNotEmpty()) {
-                                val primeiraImagemUrl = imagemUrls.first()
-
-                                // Buscar apenas a primeira imagem
-                                fetchPrimeiraImagem(primeiraImagemUrl) { primeiraImagem ->
-                                    // Cria o objeto da doação com a primeira imagem
-                                    val doacao = InformacoesDoacao(
-                                        titulo, nomeUsuario, descricao, longitude, latitude, data, disponibilidade, primeiraImagem
-                                    )
-
-                                    // Adiciona a doação na lista temporária
-                                    doacoes.add(doacao)
-
-                                    // Incrementa o contador de doações processadas
-                                    doacoesProcessadas++
-
-                                    // Se todas as doações foram processadas (última doação), atualiza a lista de doações
-                                    if (doacoesProcessadas == querySnapshot.documents.size) {
-                                        listaDoacao.addAll(doacoes) // Adiciona todas as doações à lista final
-                                        // Atualiza o adapter após adicionar a doação
-                                        if (binding.listDoacao.adapter == null) {
-                                            binding.listDoacao.adapter = CustomAdapter(this, listaDoacao)
-                                        } else {
-                                            (binding.listDoacao.adapter as CustomAdapter).notifyDataSetChanged()
-                                        }
-                                    }
-                                }
-                            } else {
-                                // Caso não haja imagem
-                                doacoesProcessadas++
-                            }
-                        }
+                        val doacao = InformacoesDoacao(
+                            titulo, nomeUsuario, descricao, longitude, latitude, data, disponibilidade, primeiraImagemUrl
+                        )
+                        listaDoacao.add(doacao)
                     }
+
+                    (binding.listDoacao.adapter as? CustomAdapter)?.notifyDataSetChanged()
                 } else {
-                    // Se não houver doações disponíveis
                     Toast.makeText(this, "Nenhuma doação disponível.", Toast.LENGTH_SHORT).show()
                 }
+
+                progressDialog.dismiss()
             }
             .addOnFailureListener { exception ->
                 Toast.makeText(this, "Erro ao buscar doações: ${exception.message}", Toast.LENGTH_SHORT).show()
+                progressDialog.dismiss()
             }
     }
 
@@ -192,13 +221,9 @@ class MinhaDoacaoActitity : AppCompatActivity() {
             .whereEqualTo("disponibilidade", "disponível") // Aqui já estamos buscando as doações disponíveis
             .get()
             .addOnSuccessListener { querySnapshot ->
-                listaDoacao.clear()  // Limpa a lista antes de adicionar novos dados
+                listaDoacao.clear()
 
                 if (!querySnapshot.isEmpty) {
-                    val doacoes = mutableListOf<InformacoesDoacao>() // Lista temporária para armazenar as doações
-                    var doacoesProcessadas = 0 // Contador de doações processadas
-
-                    // Itera sobre os documentos das doações
                     for (document in querySnapshot.documents) {
                         val titulo = document.getString("titulo") ?: "Título desconhecido"
                         val descricao = document.getString("descricao") ?: "Sem descrição"
@@ -207,51 +232,24 @@ class MinhaDoacaoActitity : AppCompatActivity() {
                         val disponibilidade = document.getString("disponibilidade") ?: "Indisponível"
                         val latitude = document.getDouble("latitude") ?: 0.0
                         val longitude = document.getDouble("longitude") ?: 0.0
-                        val pastaID = document.getString("pastaID") // Pasta ID para associar as imagens
-                        val imagemUrls = document.get("imagemUrls") as? List<String> ?: emptyList()  // Lista de URLs das imagens
+                        val primeiraImagemUrl = document.getString("primeiraImagemUrl")
 
-                        // Aqui, chamamos a função para buscar apenas a primeira imagem
-                        pastaID?.let {
-                            if (imagemUrls.isNotEmpty()) {
-                                val primeiraImagemUrl = imagemUrls.first()
-
-                                // Buscar apenas a primeira imagem
-                                fetchPrimeiraImagem(primeiraImagemUrl) { primeiraImagem ->
-                                    // Cria o objeto da doação com a primeira imagem
-                                    val doacao = InformacoesDoacao(
-                                        titulo, nomeUsuario, descricao, longitude, latitude, data, disponibilidade, primeiraImagem
-                                    )
-
-                                    // Adiciona a doação na lista temporária
-                                    doacoes.add(doacao)
-
-                                    // Incrementa o contador de doações processadas
-                                    doacoesProcessadas++
-
-                                    // Se todas as doações foram processadas (última doação), atualiza a lista de doações
-                                    if (doacoesProcessadas == querySnapshot.documents.size) {
-                                        listaDoacao.addAll(doacoes) // Adiciona todas as doações à lista final
-                                        // Atualiza o adapter após adicionar a doação
-                                        if (binding.listDoacao.adapter == null) {
-                                            binding.listDoacao.adapter = CustomAdapter(this, listaDoacao)
-                                        } else {
-                                            (binding.listDoacao.adapter as CustomAdapter).notifyDataSetChanged()
-                                        }
-                                    }
-                                }
-                            } else {
-                                // Caso não haja imagem
-                                doacoesProcessadas++
-                            }
-                        }
+                        val doacao = InformacoesDoacao(
+                            titulo, nomeUsuario, descricao, longitude, latitude, data, disponibilidade, primeiraImagemUrl
+                        )
+                        listaDoacao.add(doacao)
                     }
+
+                    (binding.listDoacao.adapter as? CustomAdapter)?.notifyDataSetChanged()
                 } else {
-                    // Se não houver doações disponíveis
                     Toast.makeText(this, "Nenhuma doação disponível.", Toast.LENGTH_SHORT).show()
                 }
+
+                progressDialog.dismiss()
             }
             .addOnFailureListener { exception ->
                 Toast.makeText(this, "Erro ao buscar doações: ${exception.message}", Toast.LENGTH_SHORT).show()
+                progressDialog.dismiss()
             }
     }
 
@@ -261,13 +259,9 @@ class MinhaDoacaoActitity : AppCompatActivity() {
             .whereEqualTo("disponibilidade", "indisponível") // Aqui já estamos buscando as doações disponíveis
             .get()
             .addOnSuccessListener { querySnapshot ->
-                listaDoacao.clear()  // Limpa a lista antes de adicionar novos dados
+                listaDoacao.clear()
 
                 if (!querySnapshot.isEmpty) {
-                    val doacoes = mutableListOf<InformacoesDoacao>() // Lista temporária para armazenar as doações
-                    var doacoesProcessadas = 0 // Contador de doações processadas
-
-                    // Itera sobre os documentos das doações
                     for (document in querySnapshot.documents) {
                         val titulo = document.getString("titulo") ?: "Título desconhecido"
                         val descricao = document.getString("descricao") ?: "Sem descrição"
@@ -276,78 +270,26 @@ class MinhaDoacaoActitity : AppCompatActivity() {
                         val disponibilidade = document.getString("disponibilidade") ?: "Indisponível"
                         val latitude = document.getDouble("latitude") ?: 0.0
                         val longitude = document.getDouble("longitude") ?: 0.0
-                        val pastaID = document.getString("pastaID") // Pasta ID para associar as imagens
-                        val imagemUrls = document.get("imagemUrls") as? List<String> ?: emptyList()  // Lista de URLs das imagens
+                        val primeiraImagemUrl = document.getString("primeiraImagemUrl")
 
-                        // Aqui, chamamos a função para buscar apenas a primeira imagem
-                        pastaID?.let {
-                            if (imagemUrls.isNotEmpty()) {
-                                val primeiraImagemUrl = imagemUrls.first()
-
-                                // Buscar apenas a primeira imagem
-                                fetchPrimeiraImagem(primeiraImagemUrl) { primeiraImagem ->
-                                    // Cria o objeto da doação com a primeira imagem
-                                    val doacao = InformacoesDoacao(
-                                        titulo, nomeUsuario, descricao, longitude, latitude, data, disponibilidade, primeiraImagem
-                                    )
-
-                                    // Adiciona a doação na lista temporária
-                                    doacoes.add(doacao)
-
-                                    // Incrementa o contador de doações processadas
-                                    doacoesProcessadas++
-
-                                    // Se todas as doações foram processadas (última doação), atualiza a lista de doações
-                                    if (doacoesProcessadas == querySnapshot.documents.size) {
-                                        listaDoacao.addAll(doacoes) // Adiciona todas as doações à lista final
-                                        // Atualiza o adapter após adicionar a doação
-                                        if (binding.listDoacao.adapter == null) {
-                                            binding.listDoacao.adapter = CustomAdapter(this, listaDoacao)
-                                        } else {
-                                            (binding.listDoacao.adapter as CustomAdapter).notifyDataSetChanged()
-                                        }
-                                    }
-                                }
-                            } else {
-                                // Caso não haja imagem
-                                doacoesProcessadas++
-                            }
-                        }
+                        val doacao = InformacoesDoacao(
+                            titulo, nomeUsuario, descricao, longitude, latitude, data, disponibilidade, primeiraImagemUrl
+                        )
+                        listaDoacao.add(doacao)
                     }
+
+                    (binding.listDoacao.adapter as? CustomAdapter)?.notifyDataSetChanged()
                 } else {
-                    // Se não houver doações disponíveis
                     Toast.makeText(this, "Nenhuma doação disponível.", Toast.LENGTH_SHORT).show()
                 }
+
+                progressDialog.dismiss()
             }
             .addOnFailureListener { exception ->
                 Toast.makeText(this, "Erro ao buscar doações: ${exception.message}", Toast.LENGTH_SHORT).show()
+                progressDialog.dismiss()
             }
     }
-
-
-    private fun fetchPrimeiraImagem(imagemUrl: String, callback: (Bitmap?) -> Unit) {
-        val storageReference: StorageReference = FirebaseStorage.getInstance().getReferenceFromUrl(imagemUrl)
-
-        // Criar um arquivo temporário para armazenar a imagem
-        val localFile = File.createTempFile("primeiraImagem", "jpg")
-
-        storageReference.getFile(localFile).addOnSuccessListener {
-            try {
-                // Converte o arquivo baixado para um Bitmap
-                val bitmap = BitmapFactory.decodeFile(localFile.absolutePath)
-                callback(bitmap)  // Retorna a primeira imagem (Bitmap)
-            } catch (e: IOException) {
-                e.printStackTrace()
-                callback(null)  // Caso haja erro na conversão
-            }
-        }.addOnFailureListener { exception ->
-            // Caso haja erro ao baixar a imagem
-            Toast.makeText(this, "Erro ao baixar a imagem: ${exception.message}", Toast.LENGTH_SHORT).show()
-            callback(null)  // Retorna null caso haja erro
-        }
-    }
-
-
 
 
     override fun onResume() {

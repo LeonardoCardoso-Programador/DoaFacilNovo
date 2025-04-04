@@ -2,6 +2,7 @@ package com.example.doafacilnovo
 
 import android.app.Activity
 import android.app.DownloadManager
+import android.app.ProgressDialog
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -17,41 +18,46 @@ import android.widget.ArrayAdapter
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.Toast
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.doafacilnovo.databinding.ActivityAdicionarDoacaoBinding
+import com.example.doafacilnovo.databinding.ActivityLocalizacaoBinding
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import java.util.*
 
 class AdicionarDoacaoActivity : AppCompatActivity(), OnMapReadyCallback {
-    private var binding: ActivityAdicionarDoacaoBinding? = null
+    private val binding by lazy { ActivityAdicionarDoacaoBinding.inflate(layoutInflater) }
     private var googleMap: GoogleMap? = null
     private val firestore = FirebaseFirestore.getInstance()
+
+    private lateinit var progressDialog: ProgressDialog // Declare o ProgressDialog
 
     // Declarando SharedPreferences
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var userUid: String
-    private val storage = FirebaseStorage.getInstance()
 
     private val selectedImageUris = mutableListOf<Uri>()
     private var selectedImageUri: Uri? = null
     private var dataSelecionada: String? = null
 
-    // Defina o REQUEST_CODE para a solicitação de permissão
-    private val REQUEST_CODE = 1001
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+        setContentView(binding.root)
+
 
         // Inicializando SharedPreferences
         sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
@@ -62,10 +68,6 @@ class AdicionarDoacaoActivity : AppCompatActivity(), OnMapReadyCallback {
             finish() // Fecha a activity se não tiver um UID válido
             return
         }
-
-        // Configuração do Binding
-        binding = ActivityAdicionarDoacaoBinding.inflate(layoutInflater)
-        setContentView(binding!!.root)
 
         // Inicializar o fragmento do mapa
         val mapFragment = supportFragmentManager.findFragmentById(R.id.mapa) as SupportMapFragment?
@@ -82,30 +84,18 @@ class AdicionarDoacaoActivity : AppCompatActivity(), OnMapReadyCallback {
             val titulo = binding!!.editTitulo.text.toString()
             val descricao = binding!!.editDescricao.text.toString()
             val data = dataSelecionada
+            val horarioEntrega = binding!!.editHorarioEntrega.text.toString()
 
-            if (titulo.isEmpty() || descricao.isEmpty() || data.isNullOrEmpty()) {
+            if (titulo.isEmpty() || descricao.isEmpty() || data.isNullOrEmpty() ||horarioEntrega.isNullOrEmpty()) {
                 Toast.makeText(this, "Preencha todos os campos", Toast.LENGTH_SHORT).show()
             } else {
-                uploadImagesToFirebase() // Enviar múltiplas imagens
-            }
-        }
-
-        // Configurar o clique na imagem para abrir a galeria
-        binding!!.myImageView.setOnClickListener {
-            // Verificar se a permissão de leitura do armazenamento foi concedida
-            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
-                // Caso a permissão não tenha sido concedida, solicita a permissão
-                ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE), REQUEST_CODE)
-            } else {
-                // Caso a permissão já tenha sido concedida, abre a galeria
-                openGallery()
+                uploadImagesToFirebase()
             }
         }
 
         binding!!.myImageView.setOnClickListener {
             selecionarImagem()
         }
-
 
     }
     private val multipleImagePickerLauncher = registerForActivityResult(
@@ -114,19 +104,19 @@ class AdicionarDoacaoActivity : AppCompatActivity(), OnMapReadyCallback {
         if (!uris.isNullOrEmpty()) {
             selectedImageUris.clear()
             selectedImageUris.addAll(uris)
-
-            // Atualiza a visualização com a primeira imagem
             atualizarImageView()
-            updateImagePreview()  // Atualiza o `imageContainer` com todas as imagens
-
+            updateImagePreview()
         }
     }
 
+    private fun selecionarImagem() {
+        multipleImagePickerLauncher.launch(arrayOf("image/*"))
+    }
 
-    // Função para abrir a galeria
     private fun openGallery() {
         val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
         intent.type = "image/*"
+        val IMAGE_PICK_CODE = 0
         startActivityForResult(intent, IMAGE_PICK_CODE)
     }
 
@@ -134,6 +124,7 @@ class AdicionarDoacaoActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
+        val IMAGE_PICK_CODE = null
         if (resultCode == Activity.RESULT_OK && requestCode == IMAGE_PICK_CODE) {
             selectedImageUri = data?.data
             binding!!.myImageView.setImageURI(selectedImageUri)  // Exibir a primeira imagem no myImageView
@@ -144,42 +135,18 @@ class AdicionarDoacaoActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-
     private fun atualizarImageView() {
         if (selectedImageUris.isNotEmpty()) {
-            binding?.myImageView?.setImageURI(selectedImageUris[0]) // Exibe a primeira imagem
+            binding?.myImageView?.setImageURI(selectedImageUris[0])
         } else {
-            binding?.myImageView?.setImageResource(R.drawable.ic_adicionar) // Imagem padrão
+            binding?.myImageView?.setImageResource(R.drawable.ic_adicionar)
         }
     }
-
-
-    private fun selecionarImagem() {
-        if (ContextCompat.checkSelfPermission(
-                this, android.Manifest.permission.READ_EXTERNAL_STORAGE
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(
-                this, arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE), REQUEST_CODE
-            )
-        } else {
-            multipleImagePickerLauncher.launch(arrayOf("image/*"))
-        }
-
-
-    }
-
-
-
 
     private fun updateImagePreview() {
-        // Remove todas as imagens do container
         binding?.imageContainer?.removeAllViews()
-
-        // Exibir as imagens, mas sem a primeira (já exibida em myImageView)
-        for (i in 1 until selectedImageUris.size) {  // Começa a partir de 1 para pular a primeira imagem
+        for (i in 1 until selectedImageUris.size) {
             val uri = selectedImageUris[i]
-
             val imageView = ImageView(this).apply {
                 layoutParams = LinearLayout.LayoutParams(200, 200).apply {
                     setMargins(8, 8, 8, 8)
@@ -192,10 +159,10 @@ class AdicionarDoacaoActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
 
-
-
     private fun uploadImagesToFirebase() {
         val tituloDoacao = binding?.editTitulo?.text.toString().trim()
+        val horarioEntrega = binding!!.editHorarioEntrega.text.toString().trim()
+
 
         if (tituloDoacao.isEmpty()) {
             Toast.makeText(this, "O título da doação não pode estar vazio!", Toast.LENGTH_SHORT).show()
@@ -210,10 +177,16 @@ class AdicionarDoacaoActivity : AppCompatActivity(), OnMapReadyCallback {
         val imageUrls = mutableListOf<String>()
         val storageRef = FirebaseStorage.getInstance().reference
 
-        // 🔥 Gerar um ID único para a pasta das imagens
+        // Gerar um ID único para a pasta das imagens
         val pastaID = UUID.randomUUID().toString()
-        val pastaDoacao = "imagensDoacoes/$pastaID" // 📂 Pasta com ID aleatório
-        var primeiraImagemUrl: String? = null  // Variável para armazenar a URL da primeira imagem
+        val pastaDoacao = "imagensDoacoes/$pastaID"
+        var primeiraImagemUrl: String? = null
+
+        // Criando o ProgressDialog
+        val progressDialog = android.app.ProgressDialog(this)
+        progressDialog.setMessage("Carregando as imagens e criando a doação...")
+        progressDialog.setCancelable(false)
+        progressDialog.show()
 
         for (uri in selectedImageUris) {
             val imageRef = storageRef.child("$pastaDoacao/${UUID.randomUUID()}.jpg")
@@ -223,68 +196,27 @@ class AdicionarDoacaoActivity : AppCompatActivity(), OnMapReadyCallback {
                     imageRef.downloadUrl.addOnSuccessListener { downloadUri ->
                         imageUrls.add(downloadUri.toString())
 
-                        // Armazenar a URL da primeira imagem
                         if (primeiraImagemUrl == null) {
                             primeiraImagemUrl = downloadUri.toString()
                         }
 
-                        // Se todas as imagens foram enviadas, salvar a doação
                         if (imageUrls.size == selectedImageUris.size) {
-                            salvarDoacaoComImagens(pastaID, tituloDoacao, imageUrls, primeiraImagemUrl)
+                            salvarDoacaoComImagens(pastaID, tituloDoacao, imageUrls, primeiraImagemUrl, progressDialog, horarioEntrega)
                         }
                     }
                 }
                 .addOnFailureListener {
+                    progressDialog.dismiss()
                     Toast.makeText(this, "Erro ao enviar imagem", Toast.LENGTH_SHORT).show()
                 }
         }
     }
 
 
-
-    fun startDownload(uri: Uri) {
-        // Crie um arquivo de destino no dispositivo (por exemplo, no diretório de Downloads)
-        val request = DownloadManager.Request(uri)
-            .setTitle("Imagem para download")
-            .setDescription("Baixando imagem do Firebase")
-            .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "nome_da_imagem.jpg")
-            .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-
-        // Obtenha o sistema de download e inicie o download
-        val downloadManager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-        downloadManager.enqueue(request)
-
-        // Opcionalmente, você pode mostrar um Toast informando o usuário
-        Toast.makeText(this, "Download iniciado!", Toast.LENGTH_SHORT).show()
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-
-        // Verificar se a permissão foi concedida
-        if (requestCode == REQUEST_CODE && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            // Permissão concedida, pode iniciar o download
-            val storageReference = FirebaseStorage.getInstance().reference
-            val imageReference = storageReference.child("images/nome_da_imagem.jpg") // Substitua pelo caminho correto da sua imagem
-
-            imageReference.downloadUrl.addOnSuccessListener { uri ->
-                // Iniciar o download
-                startDownload(uri)
-            }.addOnFailureListener { exception ->
-                // Tratar falha no download
-                Toast.makeText(this, "Falha ao obter URL: ${exception.message}", Toast.LENGTH_SHORT).show()
-            }
-        } else {
-            // Permissão negada, mostrar uma mensagem
-            Toast.makeText(this, "Permissão para acessar o armazenamento negada.", Toast.LENGTH_SHORT).show()
-        }
-    }
-
     override fun onMapReady(googleMap: GoogleMap) {
         this.googleMap = googleMap
         googleMap.uiSettings.isZoomControlsEnabled = true
 
-        // Buscar localização do usuário no Firestore
         fetchUserLocation()
     }
 
@@ -295,7 +227,7 @@ class AdicionarDoacaoActivity : AppCompatActivity(), OnMapReadyCallback {
             return
         }
         firestore.collection("users")
-            .whereEqualTo("uid", userUid)  // Filtra os documentos onde o campo "userUid" é igual ao valor fornecido
+            .whereEqualTo("uid", userUid)
             .get()
             .addOnSuccessListener { querySnapshot ->
                 if (!querySnapshot.isEmpty) {
@@ -348,10 +280,10 @@ class AdicionarDoacaoActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    private fun salvarDoacaoComImagens(pastaID: String, titulo: String, imagemUrls: List<String>, primeiraImagemUrl: String?) {
+    private fun salvarDoacaoComImagens(pastaID: String, titulo: String, imagemUrls: List<String>, primeiraImagemUrl: String?, progressDialog: android.app.ProgressDialog, horarioEntrega : String) {
         val descricao = binding?.editDescricao?.text.toString().trim()
         val data = dataSelecionada ?: ""
-
+        val adicionarContagemDoacoes = 1
 
         val diasSelecionados = data.replace(" Dias", "").toIntOrNull() ?: return
 
@@ -376,7 +308,7 @@ class AdicionarDoacaoActivity : AppCompatActivity(), OnMapReadyCallback {
 
                     if (latitude != null && longitude != null && nome != null) {
                         val doacaoData = mapOf(
-                            "pastaID" to pastaID, // 🆕 Salvar ID da pasta
+                            "pastaID" to pastaID,
                             "titulo" to titulo,
                             "descricao" to descricao,
                             "data" to data,
@@ -385,29 +317,49 @@ class AdicionarDoacaoActivity : AppCompatActivity(), OnMapReadyCallback {
                             "longitude" to longitude,
                             "nome" to nome,
                             "disponibilidade" to "disponível",
-                            "imagemUrls" to imagemUrls, // Lista de imagens
-                            "primeiraImagemUrl" to primeiraImagemUrl, // URL da primeira imagem
-                            "dataExpiracao" to dataExpiracao // Salvar a data de expiração
+                            "imagemUrls" to imagemUrls,
+                            "primeiraImagemUrl" to primeiraImagemUrl,
+                            "dataExpiracao" to dataExpiracao,
+                            "horarioEntrega" to horarioEntrega
                         )
+
+                        // Atualiza a contagem de doações do usuário
+                        firestore.collection("users")
+                            .document(userUid)
+                            .update("nDoacoes", FieldValue.increment(1))
+                            .addOnFailureListener { e ->
+                                Toast.makeText(
+                                    this,
+                                    "Erro ao atualizar nDoacoes: ${e.message}",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
 
                         firestore.collection("doacoes").add(doacaoData)
                             .addOnSuccessListener {
-                                Toast.makeText(this, "Doação criada com sucesso!", Toast.LENGTH_SHORT).show()
+                                progressDialog.dismiss() // Fechar o ProgressDialog após sucesso
+                                Toast.makeText(
+                                    this,
+                                    "Doação criada com sucesso!",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+
+                                // Troca para a nova Activity após sucesso
+                                val intent = Intent(this, MainActivity::class.java)
+                                startActivity(intent)
                                 finish()
                             }
                             .addOnFailureListener { exception ->
-                                Toast.makeText(this, "Erro ao salvar doação: ${exception.message}", Toast.LENGTH_SHORT).show()
+                                progressDialog.dismiss() // Fechar o ProgressDialog em caso de erro
+                                Toast.makeText(
+                                    this,
+                                    "Erro ao salvar doação: ${exception.message}",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                     }
                 }
             }
-    }
-
-
-
-    override fun onDestroy() {
-        super.onDestroy()
-        binding = null
     }
 
     // Função para obter o UID do usuário salvo no SharedPreferences
@@ -415,8 +367,6 @@ class AdicionarDoacaoActivity : AppCompatActivity(), OnMapReadyCallback {
         return sharedPreferences.getString("USER_UID", null)
     }
 
-    companion object {
-        const val IMAGE_PICK_CODE = 1000
-        const val REQUEST_CODE = 1001
-    }
+
 }
+
