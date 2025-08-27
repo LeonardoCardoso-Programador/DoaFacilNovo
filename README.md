@@ -1,3 +1,6 @@
+
+
+
 # DoaFacil
 Doa Fácil is a mobile application developed as part of the Professional Aptitude Test (PAP) at the Ruiz Costa Professional School (ERC).
 The main objective is to connect food donors with people in vulnerable situations, facilitating quick and direct donations based on users' geographic locations.
