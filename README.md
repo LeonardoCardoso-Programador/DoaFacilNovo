@@ -2,7 +2,7 @@
 
 # Project Video 
 
-https://github.com/user-attachments/assets/bfcc0a66-79d8-45af-8cd5-408c8d0d8549
+[Assista ao vídeo aqui](https://youtube.com/shorts/qr7WShdFBw8?feature=share)
 
 # DoaFacil
 Doa Fácil is a mobile application developed as part of the Professional Aptitude Test (PAP) at the Ruiz Costa Professional School (ERC).
