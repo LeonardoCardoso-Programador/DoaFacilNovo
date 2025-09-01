@@ -66,7 +66,8 @@ Android Studio installed.
 Firebase account (for Authentication, Firestore, and Storage).
 Google Maps API key (configured in Google Cloud Console).
 Steps:
-Clone the repository: git clone https://github.com/your-username/doa-facil.git.
+Clone the repository: git clone https://github.com/LeonardoCardoso-Programador
+/doa-facil.git.
 Open the project in Android Studio.
 Configure Firebase: Add the google-services.json file to the app/ directory.
 Add the Google Maps API key to the AndroidManifest.xml file.
@@ -86,7 +87,8 @@ Steps
 
 Clone the repository:
 
-git clone https://github.com/your-username/doa-facil.git
+git clone https://github.com/LeonardoCardoso-Programador
+/doa-facil.git
 
 
 Open the project in Android Studio.
